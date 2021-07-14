@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import pandas as pd
 import requests
 
 def get_html(url):
@@ -15,11 +16,15 @@ def extract_refrigerators_offers(url):
     wrapper = soup.find('div', {'class': wrapper_class_name})
     products = wrapper.find_all('div', {'class': product_wrapper_class})
 
+    refrigerators = pd.DataFrame([], columns=['Title', 'Url', 'Sdk'])
     for product in products:
         image = product.find('a', {'class': 'styles__CardMediaWrapper-sc-1gzprri-4 WLhYY'})
         title = image['title']
         url = image['href']
-        print(title, url)
+        ind = url.rfind('/')+1
+        sdk = url[ind:]
+        refrigerators = refrigerators.append({'Title': title, 'Url': url, 'Sdk': sdk}, ignore_index=True)
+    return refrigerators
 
 refrigerators_url = 'https://www.extra.com.br/c/eletrodomesticos/refrigeradores/?filtro=c13_c14_c13&des=0TO25'
 
@@ -30,4 +35,5 @@ printers_url = 'https://www.extra.com.br/c/informatica/z\
                 impressoras/?filtro=c56_c61'
 
 
-extract_refrigerators_offers(refrigerators_url)
+refrigerators = extract_refrigerators_offers(refrigerators_url)
+print(refrigerators)
